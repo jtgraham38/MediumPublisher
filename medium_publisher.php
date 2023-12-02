@@ -23,19 +23,145 @@ class Medium_Publisher
         //add meta box on post editor
         add_action('add_meta_boxes', array($this, 'add_medium_meta_box'));
         
-        //save custom post meta
-        add_action('save_post', array($this, 'save_medium_metadata'));
+        //save should post post meta
+        add_action('save_post', array($this, 'save_medium_should_post'), 10);   //lower priority value (10) means it will happen before higher priority value (20)
 
-        //add a pre-publish check to see if we should post to medium
-        add_action('pre-publish', array($this, 'check_if_should_post'));
+        //publish the post to medium if conditions are met
+        add_action('save_post', array($this, 'post_to_medium'), 20);            //^
 
         // set up plugin settings
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'settings_init'));
     }
 
-    //add pre-publish check for posting to medium
-    function check_if_should_post($post_id){
+    //post the post to medium, if conditions are met
+    function post_to_medium($post_id){
+        //semantic checks
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return $post_id;
+        }
+        if (!current_user_can('edit_post', $post_id)) {
+            return $post_id;
+        }
+        $post_type = get_post_type($post_id);
+        if ($post_type !== 'post') {
+            return $post_id;
+        }
+
+        //ensure this post was not saved as a draft
+        $post_status = get_post_status($post_id);
+        if ($post_status == 'draft') {
+            return $post_id;
+        }
+
+        //ensure this post is not already on medium
+        if (get_post_meta($post_id, 'medium_url', true) != ''){
+            return $post_id;
+        }
+
+        //ensure the user wants to post this post to medium
+        if (!get_post_meta($post_id, 'publish_to_medium_next_time', true))
+        {
+            return $post_id;
+        }
+
+        //cross post to medium
+        //api url
+        $author_id = get_option('medium_author_id', '');
+        
+
+        //ensure an author id was found
+        if ($author_id == ''){
+            return $post_id;
+        }
+
+        $url = "https://api.medium.com/v1/users/" . $author_id . "/posts";
+
+        //ensure publisher key is defined
+        $publisher_key = get_option('medium_publisher_key', '');
+        if ($publisher_key == ''){
+            return $post_id;
+        }
+        
+
+        //define request headers
+        $headers = array(
+            "Authorization: Bearer " . $publisher_key,
+            "Content-Type: application/json",
+            "Accept: application/json",
+            "Accept-Charset: utf-8",
+        );
+
+        //define data to be posted
+        $payload = array(
+            'title' => get_the_title($post_id),
+            'contentFormat' => 'html',
+            'content' => get_the_content(null, false, $post_id),
+            'canonicalUrl' => get_permalink($post_id),
+            'tags' => [],
+            'publishStatus' => 'public',
+            'license' => 'all-rights-reserved',
+            'notifyFollowers' => 'true',
+        );
+        //echo get_the_content(null, false, $post_id);
+        //initialize a cURL session
+        $ch = curl_init($url);
+
+        //set cURL options for the POST request
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        //send request and get the response
+        $response = curl_exec($ch);
+
+        //check if errors ocurred
+        if (curl_errno($ch)) {
+            echo 'Curl error: ' . curl_error($ch);
+        }
+
+        //close cUrl session
+        curl_close($ch);
+
+        //parse the json response as an object
+        $decoded = json_decode($response, true);
+        if ($decoded != null  && isset($decoded['data'])){
+            $data = $decoded['data'];
+        }
+        else{
+            //if here, something went wrong, so return
+            return $post_id;
+        }
+
+        //$data format: 
+        /*
+        {
+            "id": "e62d84c13e14",
+            "title": "Test publishing to Medium",
+            "authorId": "12b73749ab449fefc2c2919bb3d9d29ddc32d4b208ff60e0b919310f949eed5e0",
+            "url": "https:\/\/medium.com\/@20jgraham\/test-publishing-to-medium-e62d84c13e14",
+            "canonicalUrl": "https:\/\/wpdev-site.local\/test-publishing-to-medium\/",
+            "publishStatus": "public",
+            "publishedAt": 1701559764514,
+            "license": "all-rights-reserved",
+            "licenseUrl": "https:\/\/policy.medium.com\/medium-terms-of-service-9db0094a1e0f",
+            "tags": []
+        }
+        */
+
+        //update post meta
+        update_post_meta($post_id, 'medium_id', $data['url']);
+        update_post_meta($post_id, 'medium_title', $data['title']);
+        update_post_meta($post_id, 'medium_author_id', $data['authorId']);
+        update_post_meta($post_id, 'medium_url', $data['url']);
+        update_post_meta($post_id, 'medium_canonical_url', $data['canonicalUrl']);
+        update_post_meta($post_id, 'medium_publish_status', $data['publishStatus']);
+        update_post_meta($post_id, 'medium_published_at', $data['publishedAt']);
+        update_post_meta($post_id, 'medium_license', $data['license']);
+        update_post_meta($post_id, 'medium_license_url', $data['licenseUrl']);
+        update_post_meta($post_id, 'tags', '[' . implode(',', $data['tags']) . ']');
+
 
     }
 
@@ -53,7 +179,7 @@ class Medium_Publisher
         );
     }
 
-    function save_medium_metadata($post_id){
+    function save_medium_should_post($post_id){
         //semantic checks
         if (!isset($_POST['publish_to_medium_next_time_nonce']) || !wp_verify_nonce($_POST['publish_to_medium_next_time_nonce'], 'publish_to_medium_next_time_nonce')) {
             return;
@@ -115,6 +241,14 @@ class Medium_Publisher
         register_setting(
             'medium_publisher_settings',    //setting group
             'medium_publisher_key',         //setting name
+            array(                          //extras
+                'default' => ''             //default value
+            )
+        );
+
+        register_setting(
+            'medium_publisher_settings',    //setting group
+            'medium_author_id',             //setting name
             array(                          //extras
                 'default' => ''             //default value
             )

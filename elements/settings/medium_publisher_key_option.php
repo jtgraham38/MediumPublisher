@@ -38,7 +38,7 @@ if (!defined('ABSPATH')) {
 
     //parse the json response as an object
     $decoded = json_decode($response, true);
-    if ($decoded != null){
+    if ($decoded != null && isset($decoded['data'])){
         $data = $decoded['data'];
     }
     else{
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
 <div>
 
     <input type="text" id="medium_publisher_key_input" name="medium_publisher_key" style="display: block;" value="<?php echo esc_attr(get_option('medium_publisher_key')) ?>" />
-
+    <input type="hidden" name="medium_author_id" value="<?php echo isset($data['id']) ? $data['id'] : ""; ?>">
 
     <div class="postbox" style="margin-top: 1rem; padding: 0.25rem; display: inline-block">
         <h5>Medium Account Info.</h5>
