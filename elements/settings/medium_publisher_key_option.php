@@ -54,7 +54,7 @@ if (!defined('ABSPATH')) {
     </div>
     
 
-    <div class="postbox" style="margin-top: 1rem; padding: 0.25rem;">
+    <div class="postbox" style="margin-top: 1rem; padding: 0.25rem; display: inline-block">
         <h5>Medium Account Info.</h5>
         <hr>
         <div style="display: flex; flex-direction: row; justify-content: start;">
