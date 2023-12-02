@@ -49,10 +49,9 @@ if (!defined('ABSPATH')) {
 
 
 <div>
-    <div>
-        <input type="text" id="medium_publisher_key_input" name="medium_publisher_key" style="display: inline;" value="<?php echo esc_attr(get_option('medium_publisher_key')) ?>" />
-    </div>
-    
+
+    <input type="text" id="medium_publisher_key_input" name="medium_publisher_key" style="display: block;" value="<?php echo esc_attr(get_option('medium_publisher_key')) ?>" />
+
 
     <div class="postbox" style="margin-top: 1rem; padding: 0.25rem; display: inline-block">
         <h5>Medium Account Info.</h5>
