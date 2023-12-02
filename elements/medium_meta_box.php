@@ -11,7 +11,7 @@ $publish_next_time = get_post_meta(get_the_ID(), 'publish_to_medium_next_time', 
 
 <?php if ($medium_url == ""){ ?>
     <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
-        <label for="publish_to_medium_next_time">Publish on next update/publish?</label>
+        <label for="publish_to_medium_next_time">Ready to publish to Medium?</label>
         <input
             type="checkbox" 
             id="publish_to_medium_next_time_input" 
