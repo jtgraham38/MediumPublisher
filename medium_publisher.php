@@ -20,9 +20,55 @@ class Medium_Publisher
     // Constructor.
     public function __construct()
     {
+        //add meta box on post editor
+        add_action('add_meta_boxes', array($this, 'add_medium_meta_box'));
+        
+        //save custom post meta
+        add_action('save_post', array($this, 'save_medium_metadata'));
+
+        //add a pre-publish check to see if we should post to medium
+        add_action('pre-publish', array($this, 'check_if_should_post'));
+
         // set up plugin settings
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'settings_init'));
+    }
+
+    //add pre-publish check for posting to medium
+    function check_if_should_post($post_id){
+
+    }
+
+    //add a meta box to the edit post menu
+    function add_medium_meta_box(){
+        add_meta_box( 
+            'medium_crosspost_meta_box',        //id for the meta box
+            "Medium Publisher",                   //title of the meta box
+            function(){                         //callback that creates meta box contents
+                require_once plugin_dir_path(__FILE__) . 'elements/medium_meta_box.php';
+            }, 
+            'post',                             //post type to show box on 
+            'side',                             //how to place the box in the editor, options: 'normal', 'side', or 'advanced'
+            'default'                           //priority: 'high', 'core', 'default' or 'low'
+        );
+    }
+
+    function save_medium_metadata($post_id){
+        //semantic checks
+        if (!isset($_POST['publish_to_medium_next_time_nonce']) || !wp_verify_nonce($_POST['publish_to_medium_next_time_nonce'], 'publish_to_medium_next_time_nonce')) {
+            return;
+        }
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        $post_type = get_post_type($post_id);
+        if ($post_type !== 'post') {
+            return;
+        }
+        //update whether to publish to medium next time
+        $checkbox_value = isset($_POST['publish_to_medium_next_time']) && $_POST['publish_to_medium_next_time'] === '1' ? '1' : '0';
+        $publish_to_medium_next_time = sanitize_text_field($checkbox_value);
+        update_post_meta($post_id, 'publish_to_medium_next_time', $publish_to_medium_next_time);
     }
 
 
