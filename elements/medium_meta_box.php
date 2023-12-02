@@ -19,6 +19,8 @@ $publish_next_time = get_post_meta(get_the_ID(), 'publish_to_medium_next_time', 
             <?php checked('1', $publish_next_time, true) ?> 
             value="<?php echo $publish_next_time=='1' ? '1':'0' ?>"
         >
+        <input type="hidden" name="publish_to_medium_next_time_nonce" value="<?php echo esc_attr( wp_create_nonce('publish_to_medium_next_time_nonce') ); ?>" >
+        
         <script>
 
             //get element
