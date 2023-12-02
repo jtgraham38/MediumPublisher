@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     <summary>Setup Instructions</summary>
     <small>
     <ol>
-        <li>Register for/Login to a <a href="https://medium.com/">Medium Account</a>.</li>
+        <li>Register/Login to a <a href="https://medium.com/">Medium Account</a>.</li>
         <li>Navigate to your Profile</li>
         <li>Click "Edit Profile"</li>
         <li>Click "Security and Apps"</li>
