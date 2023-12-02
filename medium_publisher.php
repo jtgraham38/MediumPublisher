@@ -49,7 +49,7 @@ class Medium_Publisher
             'medium_publisher_settings',     //settings section identifier
             '',                              //formatted title of the section
             function(){                      //callback that echoes out content between the title and the fields
-                echo 'Configure settings for Medium Publisher!';
+                require_once plugin_dir_path(__FILE__) . 'elements/settings/setup_instructions.php';
             },
             'medium-publisher-settings',    //page on which to show the settings
         );
