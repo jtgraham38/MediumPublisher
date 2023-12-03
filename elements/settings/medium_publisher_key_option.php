@@ -5,53 +5,16 @@ if (!defined('ABSPATH')) {
 }
 ?>
 
-<?php
-
-    //api url
-    $url = "https://api.medium.com/v1/me";
-
-    //define request headers
-    $headers = [
-        "Authorization: Bearer " . esc_attr(get_option('medium_publisher_key')),
-        "Content-Type: application/json",
-        "Accept: application/json",
-        "Accept-Charset: utf-8",
-    ];
-
-    //initialize a cURL session
-    $ch = curl_init($url);
-
-    //set cURL options
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-    //send request and get the response
-    $response = curl_exec($ch);
-
-    //check if errors ocurred
-    if (curl_errno($ch)) {
-        echo 'Curl error: ' . curl_error($ch);
-    }
-
-    //close cUrl session
-    curl_close($ch);
-
-    //parse the json response as an object
-    $decoded = json_decode($response, true);
-    if ($decoded != null && isset($decoded['data'])){
-        $data = $decoded['data'];
-    }
-    else{
-        $data = [];
-    }
-    //var_dump($data);
+<?php 
+$data = $this->get_medium_acct_info();    //get the medium account info for the user 
+//var_dump($data);
 ?>
 
 
 <div>
 
     <input type="text" id="medium_publisher_key_input" name="medium_publisher_key" style="display: block;" value="<?php echo esc_attr(get_option('medium_publisher_key')) ?>" />
-    <input type="hidden" name="medium_author_id" value="<?php echo isset($data['id']) ? $data['id'] : ""; ?>">
+
 
     <div class="postbox" style="margin-top: 1rem; padding: 0.25rem; display: inline-block">
         <h5>Medium Account Info.</h5>
