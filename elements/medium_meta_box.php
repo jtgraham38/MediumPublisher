@@ -18,6 +18,7 @@ $publish_next_time = get_post_meta(get_the_ID(), 'publish_to_medium_next_time', 
             name="publish_to_medium_next_time" 
             <?php checked('1', $publish_next_time, true) ?> 
             value="<?php echo $publish_next_time=='1' ? '1':'0' ?>"
+            title='If checked, this post will be posted to Medium on the next press of either the "Publish" or "Update" button.'
         >
         <input type="hidden" name="publish_to_medium_next_time_nonce" value="<?php echo esc_attr( wp_create_nonce('publish_to_medium_next_time_nonce') ); ?>" >
         
