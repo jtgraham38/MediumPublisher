@@ -67,7 +67,7 @@ class Medium_Publisher
 
         //cross post to medium
         //api url
-        $author_id = get_option('medium_author_id', '');
+        $author_id = $this->get_medium_acct_info()['id'];
         
 
         //ensure an author id was found
@@ -245,14 +245,49 @@ class Medium_Publisher
                 'default' => ''             //default value
             )
         );
+    }
 
-        register_setting(
-            'medium_publisher_settings',    //setting group
-            'medium_author_id',             //setting name
-            array(                          //extras
-                'default' => ''             //default value
-            )
-        );
+    function get_medium_acct_info(){
+
+        //api url
+        $url = "https://api.medium.com/v1/me";
+
+        //define request headers
+        $headers = [
+            "Authorization: Bearer " . esc_attr(get_option('medium_publisher_key')),
+            "Content-Type: application/json",
+            "Accept: application/json",
+            "Accept-Charset: utf-8",
+        ];
+
+        //initialize a cURL session
+        $ch = curl_init($url);
+
+        //set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        //send request and get the response
+        $response = curl_exec($ch);
+        
+        //check if errors ocurred
+        if (curl_errno($ch)) {
+        echo 'Curl error: ' . curl_error($ch);
+        }
+
+        //close cUrl session
+        curl_close($ch);
+
+        //parse the json response as an object
+        $decoded = json_decode($response, true);
+        if ($decoded != null && isset($decoded['data'])){
+        $data = $decoded['data'];
+        }
+        else{
+        $data = [];
+        }
+        //var_dump($data);
+        return $data;
     }
 }
 
