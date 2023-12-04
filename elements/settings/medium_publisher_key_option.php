@@ -21,13 +21,13 @@ $data = $this->get_medium_acct_info();    //get the medium account info for the 
         <hr>
         <div style="display: flex; flex-direction: row; justify-content: start;">
             <div style="margin-right: 1.5rem;">
-                <img id="medium_profile_pic" style="height: 4rem;" src="<?php echo isset($data['imageUrl']) ? $data['imageUrl'] : "https://cdn-images-1.medium.com/v2/resize:fill:400:400/1*dmbNkD5D-u45r44go_cf0g.png" ?>" alt="profile picture">
+                <img id="medium_profile_pic" style="height: 4rem;" src="<?php echo esc_url(isset($data['imageUrl']) ? $data['imageUrl'] : "https://cdn-images-1.medium.com/v2/resize:fill:400:400/1*dmbNkD5D-u45r44go_cf0g.png") ?>" alt="profile picture">
             </div>
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
                 <?php if (count($data) != 0){ ?> 
-                    <div>Username: <span id="medium_username"><?php echo isset($data['username']) ? $data['username'] : "No username found!"; ?></span></div>
-                    <div>Name: <span id="medium_name"><?php echo isset($data['name']) ? $data['name'] : "No name found!"; ?></span></div>
-                    <a id="medium_acct_link" target="_blank" href="<?php echo isset($data['url']) ? $data['url'] : "/#"; ?>">View Account</a>
+                    <div>Username: <span id="medium_username"><?php echo esc_attr(isset($data['username']) ? $data['username'] : "No username found!"); ?></span></div>
+                    <div>Name: <span id="medium_name"><?php echo esc_attr(isset($data['name']) ? $data['name'] : "No name found!"); ?></span></div>
+                    <a id="medium_acct_link" target="_blank" href="<?php echo esc_url(isset($data['url']) ? $data['url'] : "/#"); ?>">View Account</a>
                 <?php } else {?>
                     <div>Your info could not be found!  Please double check that your key is accurate.  If it is, please try refreshing this page to try again.</div>
                 <?php } ?>
