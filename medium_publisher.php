@@ -24,7 +24,7 @@ class Medium_Publisher
         add_action('add_meta_boxes', array($this, 'add_medium_meta_box'));
         
         //save should post post meta
-        add_action('save_post', array($this, 'save_medium_should_post'), 10);   //lower priority value (10) means it will happen before higher priority value (20)
+        add_action('save_post', array($this, 'save_medium_meta_box'), 10);   //lower priority value (10) means it will happen before higher priority value (20)
 
         //publish the post to medium if conditions are met
         add_action('save_post', array($this, 'post_to_medium'), 20);            //^
@@ -82,7 +82,18 @@ class Medium_Publisher
         if ($publisher_key == ''){
             return $post_id;
         }
-        
+
+        //ensure title is not empty
+        $post_title = get_the_title($post_id);
+        if ($post_title == ''){
+            return $post_id;
+        }
+
+        //ensure content is not empty
+        $post_content = get_the_content(null, false, $post_id);
+        if ($post_content == ''){
+            return $post_id;
+        }
 
         //define request headers
         $headers = array(
@@ -94,12 +105,12 @@ class Medium_Publisher
 
         //define data to be posted
         $payload = array(
-            'title' => get_the_title($post_id),
+            'title' => $post_title,
             'contentFormat' => 'html',
-            'content' => get_the_content(null, false, $post_id),
-            'canonicalUrl' => get_permalink($post_id),
-            'tags' => [],
-            'publishStatus' => 'public',
+            'content' => $post_content,
+            'canonicalUrl' => get_permalink($post_id),//
+            'tags' => explode(",", get_post_meta($post_id, 'medium_tags', true)),
+            'publishStatus' => 'public',//
             'license' => 'all-rights-reserved',
             'notifyFollowers' => 'true',
         );
@@ -115,6 +126,8 @@ class Medium_Publisher
 
         //send request and get the response
         $response = curl_exec($ch);
+        //var_dump($response);
+        //die;
 
         //check if errors ocurred
         if (curl_errno($ch)) {
@@ -126,6 +139,7 @@ class Medium_Publisher
 
         //parse the json response as an object
         $decoded = json_decode($response, true);
+
         if ($decoded != null  && isset($decoded['data'])){
             $data = $decoded['data'];
         }
@@ -133,6 +147,7 @@ class Medium_Publisher
             //if here, something went wrong, so return
             return $post_id;
         }
+        
 
         //$data format: 
         /*
@@ -160,7 +175,7 @@ class Medium_Publisher
         update_post_meta($post_id, 'medium_published_at', $data['publishedAt']);
         update_post_meta($post_id, 'medium_license', $data['license']);
         update_post_meta($post_id, 'medium_license_url', $data['licenseUrl']);
-        update_post_meta($post_id, 'tags', '[' . implode(',', $data['tags']) . ']');
+        update_post_meta($post_id, 'medium_tags', implode(',', $data['tags']));
 
 
     }
@@ -179,7 +194,7 @@ class Medium_Publisher
         );
     }
 
-    function save_medium_should_post($post_id){
+    function save_medium_meta_box($post_id){
         //semantic checks
         if (!isset($_POST['publish_to_medium_next_time_nonce']) || !wp_verify_nonce($_POST['publish_to_medium_next_time_nonce'], 'publish_to_medium_next_time_nonce')) {
             return;
@@ -195,6 +210,14 @@ class Medium_Publisher
         $checkbox_value = isset($_POST['publish_to_medium_next_time']) && $_POST['publish_to_medium_next_time'] === '1' ? '1' : '0';
         $publish_to_medium_next_time = sanitize_text_field($checkbox_value);
         update_post_meta($post_id, 'publish_to_medium_next_time', $publish_to_medium_next_time);
+
+        //update post tags
+        $tag1_val = substr($_POST['medium_tag_1'], 0, 25);  //tags for the medium api cannot be longer than 25 characters
+        $tag2_val = substr($_POST['medium_tag_2'], 0, 25);  //^
+        $tag3_val = substr($_POST['medium_tag_3'], 0, 25);  //^
+
+        //update post meta
+        update_post_meta($post_id, 'medium_tags', implode( ",", [$tag1_val, $tag2_val, $tag3_val] ));
     }
 
 
