@@ -74,6 +74,7 @@ class Medium_Publisher
         if ($author_id == ''){
             return $post_id;
         }
+        
 
         $url = "https://api.medium.com/v1/users/" . $author_id . "/posts";
 
@@ -94,6 +95,7 @@ class Medium_Publisher
         if ($post_content == ''){
             return $post_id;
         }
+        
 
         //define request headers
         $headers = array(
@@ -126,8 +128,8 @@ class Medium_Publisher
 
         //send request and get the response
         $response = curl_exec($ch);
-        //var_dump($response);
-        //die;
+
+
 
         //check if errors ocurred
         if (curl_errno($ch)) {
@@ -139,6 +141,8 @@ class Medium_Publisher
 
         //parse the json response as an object
         $decoded = json_decode($response, true);
+        //echo "------";
+        //echo(curl_getinfo($ch, CURLINFO_HTTP_CODE));
 
         if ($decoded != null  && isset($decoded['data'])){
             $data = $decoded['data'];
@@ -147,6 +151,7 @@ class Medium_Publisher
             //if here, something went wrong, so return
             return $post_id;
         }
+        
         
 
         //$data format: 

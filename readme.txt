@@ -32,6 +32,9 @@ the plugin, and paste your token into the appropriate field.  Now, you're Wordpr
 The plugin will only offer to cross-post to Medium if the post has not been published yet.  So, the change on your site will not be posted to your post
 on Medium.  This is due to limitations of the Medium api.  If you want to edit the Medium post, you will have to do so separately from your Medium account.
 
+= Do I need HTTPS for this plugin to work? =
+Yes.  The Medium Publisher API requires all connections be made over HTTPS to maintain security.  The plugin will therefore not work without your site using 
+an HTTPS connection.
 
 == Changelog ==
 = 1.0.0 =

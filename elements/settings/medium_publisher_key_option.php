@@ -7,9 +7,27 @@ if (!defined('ABSPATH')) {
 
 <?php 
 $data = $this->get_medium_acct_info();    //get the medium account info for the user 
+
+// 'username': 'the_the_username', 
+// 'name': 'name', 
+// 'url': 'https://medium.com/@<username>', 
+// 'imageUrl': 'https://xyz.com'
+
 //var_dump($data);
 ?>
 
+TODOS:
+<ol>
+    <li>
+        uploading images does work, but has to be in the exact format specified <a href="https://blog.medium.com/accepted-markup-for-medium-s-publishing-api-a4367010924e">here</a>.
+        I may thus have to go in and strip out tag extras.
+    </li>
+    <li>handle failed api requests gracefully, either by showing message, trying again, or both</li>
+    <li>show error messages when returning early from a function (not logic related but user input related)</li>
+    <li>security checks on incoming and echoed data.</li>
+    <li>add link to wordpress site to the end of the MEdium body to redirect users back to the blog + get backlinks</li>
+    <li>features to show site visitors to the author's medium profile?</li>
+</ol>
 
 <div>
 
@@ -33,12 +51,7 @@ $data = $this->get_medium_acct_info();    //get the medium account info for the 
                 <?php } ?>
             </div>
         </div>
-        <!--
-        'username': '20jgraham', 
-        'name': 'jtgraham38_test', 
-        'url': 'https://medium.com/@20jgraham', 
-        'imageUrl': 'https://cdn-images-1.medium.com/fit/c/400/400/1*dmbNkD5D-u45r44go_cf0g.png'
--->
+
     </div>
 </div>
 
