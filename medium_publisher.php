@@ -121,7 +121,6 @@ class Medium_Publisher
             'license' => 'all-rights-reserved',
             'notifyFollowers' => 'true',
         );
-        //echo get_the_content(null, false, $post_id);
         //initialize a cURL session
         $ch = curl_init($url);
 
@@ -138,7 +137,8 @@ class Medium_Publisher
 
         //check if errors ocurred
         if (curl_errno($ch)) {
-            echo 'Curl error: ' . curl_error($ch);
+            return $post_id;
+            //echo 'Curl error: ' . htmlspecialchars(curl_error($ch));
         }
 
         //close cUrl session
