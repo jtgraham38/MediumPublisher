@@ -16,19 +16,6 @@ $data = $this->get_medium_acct_info();    //get the medium account info for the 
 //var_dump($data);
 ?>
 
-TODOS:
-<ol>
-    <li>
-        uploading images does work, but has to be in the exact format specified <a href="https://blog.medium.com/accepted-markup-for-medium-s-publishing-api-a4367010924e">here</a>.
-        I may thus have to go in and strip out tag extras.
-    </li>
-    <li>handle failed api requests gracefully, either by showing message, trying again, or both</li>
-    <li>show error messages when returning early from a function (not logic related but user input related)</li>
-    <li>security checks on incoming and echoed data.</li>
-    <li>add link to wordpress site to the end of the MEdium body to redirect users back to the blog + get backlinks</li>
-    <li>features to show site visitors to the author's medium profile?</li>
-</ol>
-
 <div>
 
     <input type="text" id="medium_publisher_key_input" name="medium_publisher_key" style="display: block;" value="<?php echo esc_attr(get_option('medium_publisher_key')) ?>" />

@@ -105,6 +105,11 @@ class Medium_Publisher
             "Accept-Charset: utf-8",
         );
 
+        //add footer link to medium post content
+        $author_id = get_post_field('post_author', get_the_ID());
+        $author_name = get_the_author_meta('display_name', $author_id);
+        $post_content .= '<p>Originally posted to <a href="' . get_permalink( $post_id ) . '">' . get_bloginfo('name') . '</a> by ' . (isset($author_name) ? $author_name : "Anonymous") . '.</p>';
+
         //define data to be posted
         $payload = array(
             'title' => $post_title,
